@@ -58,44 +58,53 @@ def selenium_twitter_bot():
 	house_votes = house_driver.find_elements_by_tag_name('tr')
 
 	for i in range(len(house_votes)):
-	    if not i:
-	        continue
-	    vote_array = house_votes[i].find_elements_by_tag_name('td')
-	    if (yesterday.strftime("%d-%b") != vote_array[1].text):
-	        break
-	    url = vote_array[2].find_element_by_tag_name('a').get_attribute('href')
-	    # Checker if the tweet is too long
-	    description = vote_array[5].text if len(vote_array[5].text) <= 220 else "{} {}\nSee {} for more".format(vote_array[3].text, vote_array[2].text, url)
-	    result = "Passed" if vote_array[4].text == "P" else "Failed"
-	    tweet = "New vote {} in the House\n\nDescription: {}\n\nVote: {}".format(yesterday.strftime("%m/%d/%Y"), description, result)
-	    print("House Tweet Length: " + str(len(tweet)) + " | Tweet " + str(i))
-	    api.update_status(status=tweet)
-	    time.sleep(5)
+		if not i:
+			continue
+		vote_array = house_votes[i].find_elements_by_tag_name('td')
+		url = vote_array[2].find_element_by_tag_name('a').get_attribute('href')
+		description = vote_array[5].text 
+		question = vote_array[3].text
+		result = "Passed" if vote_array[4].text == "P" else "Failed"
+		tweet = "New vote {} in the House\n\nQuestion:{}\n\nDescription: {}\n\nVote: {}" \
+						.format(yesterday.strftime("%m/%d/%Y"), question, description, result)
+		# Checker if the tweet is too long
+		if (len(tweet) > 280):
+			description = "{}\nSee {} for more" \
+										.format( vote_array[2].text, url)
+			tweet = "New vote {} in the House\n\nQuestion: {}\n\nDescription: {}\n\nVote: {}" \
+							.format(yesterday.strftime("%m/%d/%Y"), question, description, result)
+		api.update_status(status=tweet)
+		time.sleep(5)
 
 	# Senate section
 	senate_votes = senate_driver.find_elements_by_tag_name('tr')
 	for i in range(len(senate_votes)):
-	    if not i:
-	        continue
-	    vote_array = senate_votes[i].find_elements_by_tag_name('td')
-	    if (yesterday.strftime("%b %d") != vote_array[4].text):
-	        break
-	    tally = vote_array[0].text.split()[1]
-	    result = vote_array[1].text
-	    url = vote_array[0].find_element_by_tag_name('a').get_attribute('href')
-	    description = "Description: {}".format(vote_array[2].text)
-	    if len(description) > 210:
-	        helper_driver.get(url)
-	        time.sleep(5)
-	        body = helper_driver.find_element_by_class_name('contenttext')
-	        body = body.find_elements_by_tag_name('div')
-	        description = body[-1].text
-	        if (len(description) > 200):
-	            description = "{}\nSee more at {}".format(body[0].text, url)
-	    tweet = "New vote {} in the Senate\n\n{}\n\nVote: {} {}".format(yesterday.strftime("%m/%d/%Y"), description, result, tally)
-	    print("Senate Tweet Length: " + str(len(tweet)) + " | Tweet " + str(i))
-	    api.update_status(status=tweet)
-	    time.sleep(5)
+		if not i:
+			continue
+		vote_array = senate_votes[i].find_elements_by_tag_name('td')
+		if (yesterday.strftime("%b %d") != vote_array[4].text):
+			break
+		tally = vote_array[0].text.split()[1]
+		result = vote_array[1].text
+		url = vote_array[0].find_element_by_tag_name('a').get_attribute('href')
+		question = 'Question: ' + vote_array[2].text.split(':', 1)[0]
+		description = "Description: " + vote_array[2].text.split(':', 1)[1]
+		tweet = "New vote {} in the Senate\n\n{}\n\n{}\n\nVote: {} {}" \
+						.format(yesterday.strftime("%m/%d/%Y"), question, description, result, tally)
+		if (len(tweet) > 280):
+			helper_driver.get(url)
+			time.sleep(5)
+			body = helper_driver.find_element_by_class_name('contenttext')
+			body = body.find_elements_by_tag_name('div')
+			description = body[-1].text
+			tweet = "New vote {} in the Senate\n\n{}\n\n{}\n\nVote: {} {}" \
+					.format(yesterday.strftime("%m/%d/%Y"), question, description, result, tally)
+		if(len(tweet) > 280):
+			description = "{}\nSee more at {}".format(body[0].text, url)
+			tweet = "New vote {} in the Senate\n\n{}\n\nVote: {} {}" \
+					.format(yesterday.strftime("%m/%d/%Y"), description, result, tally)
+		api.update_status(status=tweet)
+		time.sleep(5)
 
 	helper_driver.get("https://www.google.com/search?client=firefox-b-1-d&q=smiley+face")
 	helper_driver.save_screenshot("happy.png")
