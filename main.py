@@ -16,10 +16,10 @@ app = Flask(__name__)
 def selenium_twitter_bot():
 	# Set all static variables
 	# Create variables for each key, secret, token
-	consumer_key = 'KPWV43OLrh2l1sHmyz6vos9rB'
-	consumer_secret = 's6mMommXjf1c3HOrFPJ9DF0GddVNu6x5WpIEmWbKkAzVytdZeh'
-	access_token = '1242097568856842242-gk90remwWj3K9EyX1PXNz3qeALjCZe'
-	access_token_secret = 'qxIwoOGPjI1l8F4TLXETQMqX2krimPMWKfiHn8991AIg4'
+	consumer_key = ''
+	consumer_secret = ''
+	access_token = ''
+	access_token_secret = ''
 
 
 	# Set up OAuth and integrate with API
