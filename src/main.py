@@ -4,7 +4,7 @@ import tweepy
 import time
 from dataclasses import dataclass
 from dacite import from_dict
-from datetime import date
+from datetime import date, timedelta
 from typing import Optional, List
 
 PROPUBLICA_API_KEY = os.environ.get("PROPUBLICA_API_KEY")
@@ -35,8 +35,8 @@ class Vote:
 
 def main():
     """Pulls Congress votes for the previous day and tweets out the results."""
-    # TODO: Change the `vote_date` to always be "yesterday".
-    vote_date = date(2022, 9, 22)
+    # Tweet out the results for yesterday
+    vote_date = date.today() - timedelta(days=1)
 
     votes = _get_votes(vote_date)
 
