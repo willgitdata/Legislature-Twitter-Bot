@@ -5,6 +5,8 @@ import time
 from dataclasses import dataclass
 from dacite import from_dict
 from datetime import datetime, date, timedelta
+from datetime import date, timedelta
+from flask import Flask
 from typing import Optional, List
 
 PROPUBLICA_API_KEY = os.environ.get("PROPUBLICA_API_KEY")
@@ -12,6 +14,9 @@ TWEEPY_CONSUMER_KEY = os.environ.get("TWEEPY_CONSUMER_KEY")
 TWEEPY_CONSUMER_SECRET = os.environ.get("TWEEPY_CONSUMER_SECRET")
 TWEEPY_ACCESS_TOKEN = os.environ.get("TWEEPY_ACCESS_TOKEN")
 TWEEPY_ACCESS_TOKEN_SECRET = os.environ.get("TWEEPY_ACCESS_TOKEN_SECRET")
+
+
+app = Flask(__name__)
 
 
 # set current time for filtering
@@ -36,6 +41,7 @@ class Vote:
     date: str
 
 
+@app.route("/")
 def main():
     """Pulls Congress votes for the previous day and tweets out the results."""
     # Tweet out the results for yesterday
