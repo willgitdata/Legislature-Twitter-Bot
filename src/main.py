@@ -4,7 +4,7 @@ import tweepy
 import time
 from dataclasses import dataclass
 from dacite import from_dict
-from datetime import date, timedelta
+from datetime import datetime, date, timedelta
 from typing import Optional, List
 
 PROPUBLICA_API_KEY = os.environ.get("PROPUBLICA_API_KEY")
@@ -72,6 +72,9 @@ def _get_votes(for_date: Optional[date] = None) -> List[Vote]:
         for_date:
             If provided, only return votes that happened on the date provided.
     """
+    
+    last_hour_date_time = for_datetime - timedelta(hours = 1) if for_datetime else None
+    
     response = requests.get(
         "https://api.propublica.org/congress/v1/both/votes/recent.json",
         headers={"X-API-Key": PROPUBLICA_API_KEY}
@@ -85,6 +88,10 @@ def _get_votes(for_date: Optional[date] = None) -> List[Vote]:
     return [
         v
         for v in votes
+        if (
+            last_hour_date_time is None
+            or datetime.strptime((v.date + v.time), "%Y-%m-%d %H-%M-%S") >= last_hour_date_time
+        )
         if not for_date or date.fromisoformat(v.date) == for_date
     ]
 
