@@ -1,0 +1,11 @@
+{
+    "production": {
+        "app_function": "src.main.app",
+        "aws_region": "us-east-1",
+        "profile_name": "default",
+        "project_name": "legislature-twi",
+        "runtime": "python3.9",
+        "s3_bucket": "zappa-xniql1jih",
+        "remote_env": "s3://legislative-twitter-bot-config-bucket/env.json"
+    }
+}
