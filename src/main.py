@@ -14,9 +14,6 @@ TWEEPY_ACCESS_TOKEN = os.environ.get("TWEEPY_ACCESS_TOKEN")
 TWEEPY_ACCESS_TOKEN_SECRET = os.environ.get("TWEEPY_ACCESS_TOKEN_SECRET")
 
 
-# set current time for filtering
-curr_time = datetime.now()
-
 @dataclass
 class VoteBreakdown:
     """The breakdown of yeas and nays on a vote."""
@@ -34,20 +31,21 @@ class Vote:
     republican: VoteBreakdown
     total: VoteBreakdown
     date: str
-
+    time: str
 
 def main():
     """Pulls Congress votes for the previous day and tweets out the results."""
-    # Tweet out the results for yesterday
-    vote_date = date.today() - timedelta(days=1)
+    
+    # set current time for filtering to only last hour
+    curr_time = datetime.now()
 
-    votes = _get_votes(vote_date)
+    votes = _get_votes(curr_time)
 
     tweepy = _initialize_tweepy()
 
     # Construct and send the tweet for each vote for the day.
     for v in votes:
-        line1 = f"New vote {vote_date.strftime('%-m/%-d/%Y')} in the {v.chamber.capitalize()}.\n\n"
+        line1 = f"New vote {curr_time.date().strftime('%-m/%-d/%Y')} in the {v.chamber.capitalize()}.\n\n"
         line2 = f"{v.description}\n\n"
         line3 = (
             f"The vote {v.result.lower()} with {v.total.yes} yea{'' if v.total.yes ==1 else 's'} "
@@ -65,13 +63,15 @@ def main():
         time.sleep(5)
 
 
-def _get_votes(for_date: Optional[date] = None) -> List[Vote]:
+def _get_votes(for_datetime: Optional[datetime] = None) -> List[Vote]:
     """Returns recent Congress votes.
 
     Args:
-        for_date:
+        for_datetime:
             If provided, only return votes that happened on the date provided.
     """
+    last_hour_date_time = for_datetime - timedelta(hours = 1)
+    
     response = requests.get(
         "https://api.propublica.org/congress/v1/both/votes/recent.json",
         headers={"X-API-Key": PROPUBLICA_API_KEY}
@@ -85,7 +85,10 @@ def _get_votes(for_date: Optional[date] = None) -> List[Vote]:
     return [
         v
         for v in votes
-        if not for_date or date.fromisoformat(v.date) == for_date
+        
+        if not datetime.strptime((v.date + v.time), "%Y-%m-%d %H-%M-%S") >= last_hour_date_time:
+              
+        if not for_datetime or date.fromisoformat(v.date) == for_datetime
     ]
 
 
