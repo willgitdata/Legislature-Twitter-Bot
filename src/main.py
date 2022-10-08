@@ -14,6 +14,9 @@ TWEEPY_ACCESS_TOKEN = os.environ.get("TWEEPY_ACCESS_TOKEN")
 TWEEPY_ACCESS_TOKEN_SECRET = os.environ.get("TWEEPY_ACCESS_TOKEN_SECRET")
 
 
+# set current time for filtering
+curr_time = datetime.now()
+
 @dataclass
 class VoteBreakdown:
     """The breakdown of yeas and nays on a vote."""
