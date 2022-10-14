@@ -25,7 +25,7 @@ def main():
 
     print(
         f"{len(votes)} votes to tweet for f{curr_time.date().isoformat} "
-        f"{curr_time.hour - 1} to {curr_time.hour}."
+        f"{(curr_time.hour - 4) % 24} to {curr_time.hour}."
     )
 
     # Construct and send the tweet for each vote for the day.
