@@ -2,6 +2,7 @@
     "production": {
         "app_function": "src.main.app",
         "aws_region": "us-east-1",
+        "keep_warm": false,
         "profile_name": "default",
         "project_name": "legislature-twi",
         "runtime": "python3.9",
