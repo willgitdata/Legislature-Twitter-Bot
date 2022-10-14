@@ -56,7 +56,7 @@ def _get_votes(for_datetime: Optional[datetime] = None) -> List[Vote]:
             If provided, only return votes that happened on the date provided.
     """
     last_hour_date_time = (
-        for_datetime - timedelta(hours=1)
+        for_datetime - timedelta(hours=6)
         if for_datetime
         else None
     )
