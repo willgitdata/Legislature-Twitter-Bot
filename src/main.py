@@ -1,53 +1,32 @@
 import json
 import requests
-import os
-import tweepy
+from tweepy import API, OAuthHandler
+from tweepy.models import Status
 import time
-from dataclasses import dataclass
-from dacite import from_dict
+from dacite.core import from_dict
 from datetime import datetime, timedelta
-from flask import Flask
+from flask import Flask, make_response
+import settings
 from typing import Optional, List
-
-PROPUBLICA_API_KEY = os.environ.get("PROPUBLICA_API_KEY")
-TWEEPY_CONSUMER_KEY = os.environ.get("TWEEPY_CONSUMER_KEY")
-TWEEPY_CONSUMER_SECRET = os.environ.get("TWEEPY_CONSUMER_SECRET")
-TWEEPY_ACCESS_TOKEN = os.environ.get("TWEEPY_ACCESS_TOKEN")
-TWEEPY_ACCESS_TOKEN_SECRET = os.environ.get("TWEEPY_ACCESS_TOKEN_SECRET")
+from src.data import Vote
 
 
 app = Flask(__name__)
 
 
-@dataclass
-class VoteBreakdown:
-    """The breakdown of yeas and nays on a vote."""
-    yes: int
-    no: int
-
-
-@dataclass
-class Vote:
-    """A vote in Congress."""
-    chamber: str
-    description: str
-    result: str
-    democratic: VoteBreakdown
-    republican: VoteBreakdown
-    total: VoteBreakdown
-    date: str
-    time: str
-
-
 @app.route("/")
 def main():
     """Pulls Congress votes for the previous day and tweets out the results."""
-    # set current time for filtering
+    api = _initialize_tweepy()
+
     curr_time = datetime.now()
 
     votes = _get_votes(curr_time)
 
-    tweepy = _initialize_tweepy()
+    print(
+        f"{len(votes)} votes to tweet for f{curr_time.date().isoformat} "
+        f"{curr_time.hour - 1} to {curr_time.hour}."
+    )
 
     # Construct and send the tweet for each vote for the day.
     for v in votes:
@@ -62,13 +41,11 @@ def main():
 
         tweet = line1 + line2 + line3
 
-        # TODO: Uncomment this line
-        # tweepy.update_status(tweet)
+        api.update_status(tweet)
 
-        # Avoid rate-limiting
-        time.sleep(5)
+        time.sleep(5)  # Avoid rate-limiting
 
-    return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+    return make_response("200")
 
 
 def _get_votes(for_datetime: Optional[datetime] = None) -> List[Vote]:
@@ -84,9 +61,11 @@ def _get_votes(for_datetime: Optional[datetime] = None) -> List[Vote]:
         else None
     )
 
+    assert settings.PROPUBLICA_API_KEY
+
     response = requests.get(
         "https://api.propublica.org/congress/v1/both/votes/recent.json",
-        headers={"X-API-Key": PROPUBLICA_API_KEY}
+        headers={"X-API-Key": settings.PROPUBLICA_API_KEY}
     )
 
     votes = [
@@ -104,11 +83,8 @@ def _get_votes(for_datetime: Optional[datetime] = None) -> List[Vote]:
     ]
 
 
-def _initialize_tweepy() -> Optional[tweepy.API]:
+def _initialize_tweepy() -> API:
     """Initialize the Twitter API client."""
-    # TODO: Uncomment these lines
-    # auth = tweepy.OAuthHandler(TWEEPY_CONSUMER_KEY, TWEEPY_CONSUMER_SECRET)
-    # auth.set_access_token(TWEEPY_ACCESS_TOKEN, TWEEPY_ACCESS_TOKEN_SECRET)
-
-    # return tweepy.API(auth)
-    return None
+    auth = OAuthHandler(settings.TWEEPY_CONSUMER_KEY, settings.TWEEPY_CONSUMER_SECRET)
+    auth.set_access_token(settings.TWEEPY_ACCESS_TOKEN, settings.TWEEPY_ACCESS_TOKEN_SECRET)
+    return API(auth)
