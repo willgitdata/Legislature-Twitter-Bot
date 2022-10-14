@@ -10,7 +10,7 @@
         "events": [
             {
                 "function": "src.main.main",
-                "expression": "rate(1 minute)"
+                "expression": "rate(6 hours)"
             }
         ],
     }
