@@ -6,6 +6,12 @@
         "project_name": "legislature-twi",
         "runtime": "python3.9",
         "s3_bucket": "zappa-xniql1jih",
-        "remote_env": "s3://legislative-twitter-bot-config-bucket/env.json"
+        "remote_env": "s3://legislative-twitter-bot-config-bucket/env.json",
+        "events": [
+            {
+                "function": "src.main.main",
+                "expression": "rate(1 minute)"
+            }
+        ],
     }
 }
