@@ -45,7 +45,9 @@ def main():
 
         time.sleep(5)  # Avoid rate-limiting
 
-    return make_response("200")
+    # Need to define app context manager when running on lambda
+    with app.app_context():
+        return make_response("200")
 
 
 def _get_votes(for_datetime: Optional[datetime] = None) -> List[Vote]:
