@@ -24,8 +24,8 @@ def main():
     votes = _get_votes(curr_time)
 
     print(
-        f"{len(votes)} votes to tweet for f{curr_time.date().isoformat} "
-        f"{(curr_time.hour - 4) % 24} to {curr_time.hour}."
+        f"{len(votes)} votes to tweet for f{curr_time.date().isoformat()} "
+        f"{(curr_time.hour - 6) % 24} to {curr_time.hour}."
     )
 
     # Construct and send the tweet for each vote for the day.
@@ -45,9 +45,7 @@ def main():
 
         time.sleep(5)  # Avoid rate-limiting
 
-    # Need to define app context manager when running on lambda
-    with app.app_context():
-        return make_response("200")
+    return json.dumps({"status": 200})
 
 
 def _get_votes(for_datetime: Optional[datetime] = None) -> List[Vote]:
