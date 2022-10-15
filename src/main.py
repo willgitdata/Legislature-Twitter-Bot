@@ -5,16 +5,11 @@ from tweepy.models import Status
 import time
 from dacite.core import from_dict
 from datetime import datetime, timedelta
-from flask import Flask, make_response
 import settings
 from typing import Optional, List
 from src.data import Vote
 
 
-app = Flask(__name__)
-
-
-@app.route("/")
 def main():
     """Pulls Congress votes for the previous day and tweets out the results."""
     api = _initialize_tweepy()

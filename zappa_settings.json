@@ -1,6 +1,5 @@
 {
     "production": {
-        "app_function": "src.main.app",
         "aws_region": "us-east-1",
         "keep_warm": false,
         "profile_name": "default",
@@ -13,6 +12,6 @@
                 "function": "src.main.main",
                 "expression": "rate(6 hours)"
             }
-        ],
+        ]
     }
 }
